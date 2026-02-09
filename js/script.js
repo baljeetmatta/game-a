@@ -1,116 +1,144 @@
+//1. Project Setup -> static->Canvas, script Add
+//Javascript ->references, canvas setup
+//2. Player setup
+//3. Down
+//4. Gravity
+//5. Movement
+//6. Restrict Screen
+
 const gameCanvas=document.querySelector("#gameCanvas");
 gameCanvas.width=window.innerWidth;
 gameCanvas.height=window.innerHeight;
 gameCanvas.style.background="yellow";
-
-//drawing context
-const context= gameCanvas.getContext("2d");
-
-
-//context.fillRect(100,100,100,200);
-
-// context.fillStyle="red";
-// context.fillRect(20,20,50,50);
-// context.strokeStyle="green";
-
-// context.strokeRect(100,100,100,200);
-
-
-
-// context.beginPath();
-// context.moveTo(100,100);
-// context.lineTo(300,250);
-// context.arc(100,100,40,0,Math.PI);
-// context.stroke();
-// context.closePath();
-
-// context.font="50px arial"
-// context.strokeText("Hello",200,200);
-
-// class Circle{
-//     // x=10;
-//     display(){
-//         this.x=20;
-
-//         console.log(this.x);
-//     }
-// }
-
-// let c=new Circle();
-// c.display();
-
-class Circle{
-    constructor(x,y,radius,speed)
+let gravity=0.5;
+const context=gameCanvas.getContext("2d");
+const keys={
+    right:{
+        pressed:false
+    },
+    left:
     {
-        this.x=x;
-        this.y=y;
-        this.radius=radius;
-        this.speed=speed;
-        //this.draw();
+        pressed:false
+    }
+}
+class Platform{
+    constructor(x,y,width,height)
+    {
+        this.position={
+            x,
+            y
+        }
+        this.width=width;
+        this.height=height;
+    }
+    draw()
+    {
+        context.fillStyle="black";
+        // console.log(this.position.x,this.position.y,this.width,this.height);
+      // context.fillRect(100,100,40,40);
+        context.fillRect(this.position.x,this.position.y,this.width,this.height);
 
+    }
+}
+class Player{
+    constructor(){
+        this.position={
+            x:100,
+            y:200
+        }
+        this.velocity={
+            x:0,
+            y:2
+        }
+        this.width=20;
+        this.height=20;
     }
     draw(){
-       // console.log(this.x,this.y,this.radius);
-       context.beginPath()
-       context.arc(this.x+this.speed,this.y+this.speed,this.radius,0,Math.PI*2);
-        context.stroke();
-        context.closePath();
-
+        context.fillStyle="red";
+        context.fillRect(this.position.x,this.position.y,this.width,this.height);
 
     }
+    update(){
+        
+        this.position.y+=this.velocity.y;
+        this.position.x+=this.velocity.x;
+        if(this.position.y+this.height+this.velocity.y<gameCanvas.height)
+             this.velocity.y+=gravity;   
+        else
+            this.velocity.y=0;
 
+ 
+
+this.draw();
+    }
 }
-// let c=new Circle(100,100,50);
-// c.draw();
+const player=new Player();
+player.draw();
+const platform=new Platform(300,gameCanvas.height-75,30,75);
+platform.draw();
 
-
-// let c1=new Circle(50,50,10);
-// c1.draw();
-// let circles=[];
-// for(i=0;i<10;i++)
-// {
-//     let x=Math.random()*window.innerWidth;
-//     let y=Math.random()*window.innerHeight;
-    
-//     let c=new Circle(x,y,50);
-//     circles.push(c);
-
-// }
-
-// console.log(circles.length);
-
-
-
-let c=new Circle(100,100,30,5);
-c.draw();
-function animate()
-{
+function animate(){
     requestAnimationFrame(animate);
-    c.speed+=2;
     context.clearRect(0,0,window.innerWidth,window.innerHeight)
-     c.draw();
+   platform.draw();
+    player.update();
+    
 
+
+    if(keys.right.pressed && player.position.x<=600)
+        player.velocity.x=2;
+    else if (keys.left.pressed && player.position.x>100)
+        player.velocity.x=-2;
+    else
+        player.velocity.x=0;
+
+
+    if(player.position.x+player.width>=platform.position.x)
+            player.velocity.x=0;
+
+       
 }
 
 animate();
 
-//setInterval(animate,100);
+addEventListener("keydown",(e)=>{
+    console.log(e);
+    if(e.key=="ArrowRight")
+        keys.right.pressed=true;
+        //player.velocity.x=2;
+    if(e.key=="ArrowLeft")
+        keys.left.pressed=true;
+        //player.velocity.x=-2;
+    if(e.key=="ArrowUp")
+        player.velocity.y=-10;
 
-// function animate()
-// {
-//     c.speed+=5;
-//     context.clearRect(0,0,window.innerWidth,window.innerHeight)
-//     c.draw();
+})
+addEventListener("keyup",(e)=>{
+    console.log(e);
+    if(e.key=="ArrowRight")
+        keys.right.pressed=false;
+        //player.velocity.x=0;
+     if(e.key=="ArrowLeft")
+        keys.left.pressed=false;
+       // player.velocity.x=0;
 
-// }
+})
 
-// console.log("First");
-// setTimeout(test,0);
-// console.log("Second");
-// function test()
-// {
-//     console.log("test called");
-// }
+// addEventListener("keydown",(e)=>{
+//     console.log(e);
+//     if(e.key=="ArrowRight")
+//         player.velocity.x=2;
+//     if(e.key=="ArrowLeft")
+//         player.velocity.x=-2;
+//     if(e.key=="ArrowUp")
+//         player.velocity.y=-10;
 
+// })
+// addEventListener("keyup",(e)=>{
+//     console.log(e);
+//     if(e.key=="ArrowRight")
+//         player.velocity.x=0;
+//      if(e.key=="ArrowLeft")
+//         player.velocity.x=0;
 
-
+// })
