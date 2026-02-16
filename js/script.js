@@ -9,7 +9,7 @@
 //8. Multiple Platform
 //9. Scrolling Effect
 //10. Win Situation
-
+"use strict"
 let offset=0;
 const speed=2;
 
@@ -30,22 +30,24 @@ const keys={
     }
 }
 class Platform{
-    constructor(x,y,width,height)
+    constructor(x,y,image)
     {
         this.position={
             x,
             y
         }
-        this.width=width;
-        this.height=height;
+        this.image=image;
+        this.width=image.width;
+        this.height=image.height;
     }
     draw()
     {
-        context.fillStyle="black";
+       // context.fillStyle="black";
         // console.log(this.position.x,this.position.y,this.width,this.height);
       // context.fillRect(100,100,40,40);
-        context.fillRect(this.position.x,this.position.y,this.width,this.height);
-
+       // context.fillRect(this.position.x,this.position.y,this.width,this.height);
+        context.drawImage(this.image,this.position.x,this.position.y);
+        
     }
 }
 class Player{
@@ -54,16 +56,36 @@ class Player{
             x:100,
             y:200
         }
+        this.frames=0;
         this.velocity={
             x:0,
             y:2
         }
-        this.width=20;
-        this.height=20;
+        this.width=66;
+        this.height=150;
+        this.cropWidth=177;
+        this.image=playerRightStand;
+        
     }
     draw(){
-        context.fillStyle="red";
-        context.fillRect(this.position.x,this.position.y,this.width,this.height);
+        this.frames++;
+        if(this.frames>59 && this.image==playerRightStand)
+            this.frames=0;
+          else if(this.frames>  29 && this.image==playerRightRun)
+            this.frames=0;
+        
+       // context.fillStyle="red";
+        //context.fillRect(this.position.x,this.position.y,this.width,this.height);
+        context.drawImage(
+            this.image,
+            this.cropWidth*this.frames,
+            0,
+            this.cropWidth,
+            400,
+            this.position.x,
+            this.position.y,
+            this.width,
+            this.height);
 
     }
     update(){
@@ -83,31 +105,115 @@ class Player{
 this.draw();
     }
 }
-const player=new Player();
-player.draw();
-const platforms=[];
+
+
+// //const platform=new Platform(300,gameCanvas.height-75,30,75);
+// const platform=new Platform(200,200,100,30);
+
+// platforms.push(platform);
+
+// //const platform1=new Platform(550,gameCanvas.height-75,30,75);
+// const platform1=new Platform(500,300,130,25);
+// const platform2=new Platform(0,gameCanvas.height-40,400,40);
+// const platform3=new Platform(450,gameCanvas.height-40,400,40);
 
 //const platform=new Platform(300,gameCanvas.height-75,30,75);
-const platform=new Platform(200,200,100,30);
+//const platform=new Platform(200,200,);
 
-platforms.push(platform);
+//platforms.push(platform);
 
 //const platform1=new Platform(550,gameCanvas.height-75,30,75);
-const platform1=new Platform(500,300,130,25);
-const platform2=new Platform(0,gameCanvas.height-40,400,40);
-const platform3=new Platform(450,gameCanvas.height-40,400,40);
+//const platform1=new Platform(500,300,130,25);
 
-platforms.push(platform1);
+let count=0;
+const totalImages=6;
+
+const backImage=new Image();
+backImage.src="./images/background.png";
+backImage.addEventListener("load"  ,()=>{
+    count++;
+})
+
+const hillsImage=new Image();
+hillsImage.src="./images/hills.png";
+hillsImage.addEventListener("load"  ,()=>{
+    count++;
+})
+
+const basePlatform=new Image();
+basePlatform.src="./images/platform.png";
+
+basePlatform.addEventListener("load"  ,()=>{
+    count++;
+})
+
+const baseSmallPlatform=new Image();
+baseSmallPlatform.src="./images/platformSmallTall.png";
+
+baseSmallPlatform.addEventListener("load"  ,()=>{
+    count++;
+})
+
+const playerRightStand=new Image();
+playerRightStand.src="./images/spriteStandRight.png";
+
+playerRightStand.addEventListener("load"  ,()=>{
+    count++;
+})
+
+
+const playerRightRun=new Image();
+playerRightRun.src="./images/spriteRunRight.png";
+
+playerRightRun.addEventListener("load"  ,()=>{
+    count++;
+})
+
+
+let id=setInterval(()=>{
+
+    if(count==totalImages)
+    {
+        clearInterval(id);
+        playerSetup();
+
+    }
+},100)
+
+
+let  player;
+let platforms=[]
+function playerSetup()
+{
+
+player=new Player();
+player.draw();
+const platform2=new Platform(0,gameCanvas.height-basePlatform.height,basePlatform);
+const platform3=new Platform(basePlatform.width+80,gameCanvas.height-basePlatform.height,basePlatform);
+const platform4=new Platform(basePlatform.width*2+80-2,gameCanvas.height-basePlatform.height,basePlatform);
+
+const platform5=new Platform(200,gameCanvas.height-baseSmallPlatform.height,baseSmallPlatform);
+
+//platforms.push(platform1);
+platforms.push(platform5);
 platforms.push(platform2);
 platforms.push(platform3);
+platforms.push(platform4);
 
-platform.draw();
+animate();
+
+}
+
+
+//platform.draw();
 
 function animate(){
     requestAnimationFrame(animate);
     context.clearRect(0,0,window.innerWidth,window.innerHeight);
-    backImage.draw();
-    hillsImage.draw();
+  //  backImage.draw();
+    //hillsImage.draw();
+    context.drawImage(backImage,0-offset,0);
+    context.drawImage(hillsImage,0-offset,0);
 
   platforms.forEach((platform)=>{
         platform.draw();
@@ -116,7 +222,19 @@ function animate(){
     player.update();
     
 
+    if(keys.right.pressed)
+    {
+        player.image=playerRightRun;
+        player.width=127.87;
+        player.cropWidth=340;
+    }
 
+    else
+    {player.image=playerRightStand;
+        player.width=66
+        player.cropWidth=177;
+
+    }
     if(keys.right.pressed && player.position.x<=600)
     {    player.velocity.x=speed;
        // offset+=speed;
@@ -213,25 +331,31 @@ addEventListener("keyup",(e)=>{
 
 // })
 
-class GenericImage
-{
-    constructor(imagePath)
-    {
-        const image=new Image();
-        image.src=imagePath;
-        this.image=image;
 
-    }
-    draw()
-    {
-        context.drawImage(this.image,0-offset,0);
+// class GenericImage
+// {
+//     constructor(imagePath)
+//     {
+//         const image=new Image();
+//         image.src=imagePath;
+//         this.image=image;
 
-    }
-}
-const backImage=new GenericImage("./images/background.png");
+//     }
+//     draw()
+//     {
+//         context.drawImage(this.image,0-offset,0);
 
-const hillsImage=new GenericImage("./images/hills.png");
+//     }
+// }
+
+// const backImage=new GenericImage("./images/background.png");
+
+// const hillsImage=new GenericImage("./images/hills.png");
+
+// const basePlatform=new GenericImage("./images/platform.png");
 
 
 
-animate();
+
+
+
